@@ -1,0 +1,2 @@
+# triangulation-calculator
+三角測量で測定した四辺形網の角度の最確値を計算するscript
