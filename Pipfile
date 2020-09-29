@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+autopep8 = "*"
 
 [packages]
 numpy = "*"
@@ -14,4 +15,4 @@ pandas = "*"
 python_version = "3.8"
 
 [scripts]
-calc = "python main.py"
+calc = "python src/main.py"
