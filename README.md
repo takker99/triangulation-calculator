@@ -4,6 +4,7 @@
 
 ## 使い方
 
+↓これ間違っているので後で直します
 ```bash
 git clone https://github.com/takker99/triangulation-calculator
 cd triangulation-calculator
