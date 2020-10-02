@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from typing import Sequence
 
 
 def makeA(c: list):
@@ -49,24 +50,33 @@ def calcResidual(theta: np.matrix):
 
 
 def checkConvergence(residuals: np.matrix):
+    if (len(residuals) == 0):
+        return False
     value = max([max([math.fabs(residual) for residual in row])
                  for row in residuals])
-    print(f'value = {value}')
     return value < 10.0**-9
 
 
-def todegree(radian: float):
+def todegree(radian: float, digit: int = 10):
     degrees = math.degrees(radian)
     degf, deg = math.modf(degrees)
     minutes = int(degf*60)
     seconds = int(degf*3600) % 60+degf*3600-int(degf*3600)
-    return f'{int(deg)}°{int(minutes)}′{seconds}′′'
-
-def printAngles(angles: np.matrix):
-    return np.matrix([[todegree(radian) for radian in row] for row in angles])
+    return f'{int(deg)}°{int(minutes)}′{seconds:.{digit}g}′′'
 
 
-# main函数
+def printAngles(angles: Sequence[float], indent: int = 1, symbol: str = 'M'):
+    space = ''.join(['\t']*indent)
+    for i in range(len(angles)):
+        print(f'{space}{symbol}_{i} = {todegree(angles[i],4)}')
+
+
+def printTheta(angles: Sequence[float], step: int, indent: int = 1, symbol: str = 'θ'):
+    space = ''.join(['\t']*indent)
+    for i in range(len(angles)):
+        print(f'{space}{symbol}_{i}({step}) = {todegree(angles[i],4)}')
+
+    # main函数
 if __name__ == '__main__':
     # 初期値
     theta = np.matrix([
@@ -81,16 +91,12 @@ if __name__ == '__main__':
     ], dtype=float)
 
     i = 0
-    print(f'initial theta value:\n{printAngles(theta)}')
-    print(f'sum: {todegree(sum(*theta.T.tolist()))}')
-    residual = calcResidual(theta)
+    print('This program calculates angles in Radian')
+    print('Measured angles:')
+    printTheta(*theta.T.tolist(), i, 1)
+    print('Start calculating...')
     # 残差を保持するlist
-    residuals = residual.T.tolist()
-    theta += residual
-    i += 1
-    print(f'step = {i}, theta =\n{printAngles(theta)}')
-    print(f'sum: {todegree(sum(*theta.T.tolist()))}')
-    print(f'residual =\n{printAngles(residual)}')
+    residuals = []
 
     # 計算処理
     while not checkConvergence(residuals):
@@ -98,11 +104,15 @@ if __name__ == '__main__':
         residuals.append(*residual.T.tolist())
         theta += residual
         i += 1
-        print(f'step = {i}, theta =\n{printAngles(theta)}')
-        print(f'sum: {todegree(sum(*theta.T.tolist()))}')
-        print(f'residual =\n{printAngles(residual)}')
+        print(f'### result of step {i} ###')
+        printTheta(*theta.T.tolist(), i)
+        printTheta(residuals[0], i, symbol='⊿')
         if len(residuals) > 10:
             residuals.pop(0)
 
-    print(
-        f'Finish calculating!\n\tMPV: {printAngles(theta)}\n\tresidual: {printAngles([residuals[len(residuals)-1]])}')
+    print(f'##########################')
+    print('Finish calculating!')
+    print('Most probable angles:')
+    printAngles(*theta.T.tolist())
+    print('Residuals:')
+    printAngles(residuals[len(residuals)-1], symbol='ν')
